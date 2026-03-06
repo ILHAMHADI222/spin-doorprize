@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Doorprize Hallonet</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+
+body{
+margin:0;
+height:100vh;
+font-family:Segoe UI, Arial, sans-serif;
+cursor:pointer;
+overflow:hidden;
+}
+
+/* background */
+
+.banner{
+width:100vw;
+height:100vh;
+background-image:url("bg.png");
+background-size:cover;
+background-position:center;
+position:relative;
+}
+
+/* area nama */
+
+.name-area{
+
+position:absolute;
+
+left:0;
+top:0;
+
+width:55%;
+height:100%;
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+}
+
+/* teks nama */
+
+.nama{
+
+font-family:'Poppins', sans-serif;
+
+font-size:60px;
+
+font-weight:700;
+
+color:white;
+
+text-align:center;
+
+letter-spacing:2px;
+
+line-height:1.2;
+
+text-shadow:
+0 4px 20px rgba(0,0,0,0.35);
+
+transition:all 0.35s ease;
+
+}
+/* animasi menang */
+
+.pop{
+
+transform:scale(1.15);
+
+color:#ffffff;
+
+text-shadow:
+0 8px 35px rgba(0,0,0,0.45);
+
+}
+@keyframes winnerReveal{
+
+0%{
+transform:scale(0.85);
+opacity:0;
+}
+
+100%{
+transform:scale(1);
+opacity:1;
+}
+
+}
+
+/* info kecil */
+
+.info{
+
+position:absolute;
+
+bottom:25px;
+
+left:50%;
+
+transform:translateX(-50%);
+
+font-size:14px;
+
+color:white;
+
+opacity:0.8;
+
+}
+
+</style>
+</head>
+
+<body onclick="kocok()">
+
+<div class="banner">
+
+<div class="name-area">
+<div class="nama" id="namaMitra">
+Klik layar untuk mulai
+</div>
+</div>
+
+<div class="info">
+Klik di mana saja untuk mengundi
+</div>
+
+</div>
+
+<audio id="drum" src="https://assets.mixkit.co/sfx/preview/mixkit-drum-roll-566.mp3"></audio>
+<audio id="win" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
+
+<script>
+
+let peserta=[
+"Pak Slamet",
+"Budi",
+"Andi",
+"Rudi",
+"Siti",
+"Dewi",
+"Maya",
+"Ilham",
+"Rahmat"
+];
+
+/* pemenang yang sudah ditentukan */
+
+let pemenangTetap={
+1:"Rudi",
+2:"Siti",
+3:"Budi",
+4:"Ilham",
+5:"Dewi",
+6:"Maya"
+};
+
+/* background hadiah pakai huruf */
+
+let backgroundHadiah={
+a:"bg1.png",
+b:"bg2.png",
+c:"bg3.png",
+d:"bg4.png",
+e:"bg5.png"
+};
+
+let sedangKocok=false;
+
+/* keyboard control */
+
+document.addEventListener("keydown", function(e){
+
+let key=e.key.toLowerCase();
+
+/* ======================
+   GANTI BACKGROUND
+====================== */
+
+if(backgroundHadiah[key]){
+
+document.querySelector(".banner").style.backgroundImage =
+"url('"+backgroundHadiah[key]+"')";
+
+return; // tidak spin
+
+}
+
+/* ======================
+   SPIN UNDIAN
+====================== */
+
+let juara=parseInt(key);
+
+if(!juara) return;
+
+kocok(juara);
+
+});
+
+function kocok(juara){
+
+if(sedangKocok) return;
+
+if(peserta.length==0){
+alert("Peserta habis");
+return;
+}
+
+sedangKocok=true;
+
+let box=document.getElementById("namaMitra");
+
+let drum=document.getElementById("drum");
+let win=document.getElementById("win");
+
+drum.currentTime=0;
+drum.play();
+
+let durasi=5000;
+let interval=70;
+let waktu=0;
+
+let animasi=setInterval(()=>{
+
+let random=Math.floor(Math.random()*peserta.length);
+
+box.innerText=peserta[random];
+
+waktu+=interval;
+
+if(waktu>=durasi){
+
+clearInterval(animasi);
+
+let nama;
+
+/* jika juara sudah disetting */
+
+if(pemenangTetap[juara]){
+
+nama=pemenangTetap[juara];
+
+}else{
+
+/* random */
+
+let random=Math.floor(Math.random()*peserta.length);
+nama=peserta[random];
+
+}
+
+/* tampilkan */
+
+box.innerText=nama;
+
+box.classList.add("pop");
+
+drum.pause();
+win.play();
+
+confetti({
+particleCount:250,
+spread:160,
+origin:{y:0.6}
+});
+
+/* hapus dari peserta */
+
+let indexPeserta = peserta.indexOf(nama);
+if(indexPeserta !== -1){
+peserta.splice(indexPeserta,1);
+}
+
+setTimeout(()=>{
+box.classList.remove("pop");
+sedangKocok=false;
+},2000);
+
+}
+
+},interval);
+
+}
+
+</script>
+
+</body>
+</html>
