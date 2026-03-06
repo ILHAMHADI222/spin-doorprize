@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <title>Doorprize Hallonet</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
@@ -11,158 +13,153 @@
 body{
 margin:0;
 height:100vh;
-font-family:Segoe UI, Arial, sans-serif;
-cursor:pointer;
+font-family:Poppins;
 overflow:hidden;
+background:#000;
 }
-
-/* background */
 
 .banner{
 width:100vw;
 height:100vh;
-background-image:url("bg.png");
-background-size:cover;
-background-position:center;
+background:url("bg.png") center/cover;
 position:relative;
 }
 
-/* area nama */
+/* AREA NAMA */
 
 .name-area{
-
 position:absolute;
-
 left:0;
 top:0;
-
 width:55%;
 height:100%;
-
 display:flex;
 justify-content:center;
 align-items:center;
-
 }
-
-/* teks nama */
 
 .nama{
-
-font-family:'Poppins', sans-serif;
-
-font-size:60px;
-
-font-weight:700;
-
+font-size: 50px;
+font-weight:800;
 color:white;
-
 text-align:center;
-
-letter-spacing:2px;
-
-line-height:1.2;
-
+letter-spacing:3px;
 text-shadow:
-0 4px 20px rgba(0,0,0,0.35);
-
-transition:all 0.35s ease;
-
+0 0 20px rgba(255,255,255,0.6),
+0 0 40px rgba(0,0,0,0.6);
+transition:0.4s;
 }
-/* animasi menang */
 
 .pop{
-
 transform:scale(1.15);
-
-color:#ffffff;
-
-text-shadow:
-0 8px 35px rgba(0,0,0,0.45);
-
-}
-@keyframes winnerReveal{
-
-0%{
-transform:scale(0.85);
-opacity:0;
 }
 
-100%{
-transform:scale(1);
-opacity:1;
-}
-
-}
-
-/* info kecil */
+/* INFO */
 
 .info{
-
 position:absolute;
-
-bottom:25px;
-
+bottom:30px;
 left:50%;
-
 transform:translateX(-50%);
-
-font-size:14px;
-
 color:white;
-
+font-size:14px;
 opacity:0.8;
+}
 
+/* MODAL */
+
+.modal{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.8);
+justify-content:center;
+align-items:center;
+z-index:999;
+backdrop-filter:blur(6px);
+}
+
+.modal-box{
+background:linear-gradient(145deg,#ffffff,#f0f0f0);
+padding:50px;
+border-radius:20px;
+text-align:center;
+box-shadow:0 20px 60px rgba(0,0,0,0.4);
+animation:popup 0.5s ease;
+}
+
+@keyframes popup{
+0%{transform:scale(0.7);opacity:0}
+100%{transform:scale(1);opacity:1}
+}
+
+.modal-title{
+font-size:32px;
+font-weight:800;
+color:#ff9800;
+letter-spacing:3px;
+}
+
+#winnerName{
+font-size:48px;
+font-weight:800;
+margin:25px 0;
+color:#222;
+}
+
+.btn-delete{
+background:#e53935;
+color:white;
+border:none;
+padding:12px 30px;
+font-size:16px;
+border-radius:8px;
+cursor:pointer;
 }
 
 </style>
 </head>
 
-<body onclick="kocok()">
+<body>
 
-<div class="banner">
+<div class="banner" id="banner">
 
 <div class="name-area">
 <div class="nama" id="namaMitra">
-Klik layar untuk mulai
+Tekan Untuk Mulai
 </div>
 </div>
 
-<div class="info">
-Klik di mana saja untuk mengundi
-</div>
 
 </div>
 
-<audio id="drum" src="https://assets.mixkit.co/sfx/preview/mixkit-drum-roll-566.mp3"></audio>
-<audio id="win" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
+<!-- MODAL -->
+
+<div id="winnerModal" class="modal">
+
+<div class="modal-box">
+
+<div class="modal-title">🎉 PEMENANG 🎉</div>
+
+<div id="winnerName"></div>
+
+<button class="btn-delete" onclick="hapusPemenang()">HAPUS</button>
+
+</div>
+
+</div>
+
+<audio id="drum" src="audio/drum.mp3" preload="auto"></audio>
+<audio id="win" src="audio/win.mp3" preload="auto"></audio>
 
 <script>
 
-let peserta=[
-"Pak Slamet",
-"Budi",
-"Andi",
-"Rudi",
-"Siti",
-"Dewi",
-"Maya",
-"Ilham",
-"Rahmat"
-];
-
-/* pemenang yang sudah ditentukan */
-
-let pemenangTetap={
-1:"Rudi",
-2:"Siti",
-3:"Budi",
-4:"Ilham",
-5:"Dewi",
-6:"Maya"
-};
-
-/* background hadiah pakai huruf */
+/* =====================
+BACKGROUND CONTROL
+===================== */
 
 let backgroundHadiah={
 a:"bg1.png",
@@ -172,121 +169,278 @@ d:"bg4.png",
 e:"bg5.png"
 };
 
+/* =====================
+DATA PESERTA
+===================== */
+
+let pesertaDefault=[
+"Budi Santoso",
+"Agus Setiawan",
+"Rudi Hartono",
+"Ahmad Fauzi",
+"Dedi Kurniawan",
+"Fajar Nugroho",
+"Rizky Pratama",
+"Eko Saputra",
+"Yusuf Hidayat",
+"Arif Rahman",
+"Siti Aisyah",
+"Dewi Lestari",
+"Fitri Handayani",
+"Nanda Putri",
+"Rina Kartika",
+"Maya Sari",
+"Ayu Wulandari",
+"Nur Hidayah",
+"Lina Marlina",
+"Sri Wahyuni"
+];
+
+let peserta = JSON.parse(localStorage.getItem("peserta")) || pesertaDefault;
+
+/* =====================
+PEMENANG UTAMA
+===================== */
+
+let pemenangTetap={
+1:"Arif Rahman",
+2:"Sri Wahyuni",
+3:"Dewi Lestari",
+4:"Eko Saputra"
+};
+
 let sedangKocok=false;
+let spinInterval=null;
+let modeSpin=null;
+let currentWinner=null;
 
-/* keyboard control */
+/* =====================
+KEYBOARD CONTROL
+===================== */
 
-document.addEventListener("keydown", function(e){
+document.addEventListener("keydown",(e)=>{
 
 let key=e.key.toLowerCase();
 
-/* ======================
-   GANTI BACKGROUND
-====================== */
+/* ganti background + reset tampilan */
 
 if(backgroundHadiah[key]){
 
-document.querySelector(".banner").style.backgroundImage =
-"url('"+backgroundHadiah[key]+"')";
+gantiBackground(backgroundHadiah[key]);
 
-return; // tidak spin
+return;
 
 }
 
-/* ======================
-   SPIN UNDIAN
-====================== */
+/* hadiah receh */
 
-let juara=parseInt(key);
-
-if(!juara) return;
-
-kocok(juara);
-
-});
-
-function kocok(juara){
-
-if(sedangKocok) return;
-
-if(peserta.length==0){
-alert("Peserta habis");
+if(key==="r"){
+mulaiSpin("receh");
 return;
 }
 
-sedangKocok=true;
+/* juara */
 
+let juara=parseInt(key);
+
+if(juara){
+mulaiSpin(juara);
+return;
+}
+
+/* stop */
+
+if(e.code==="Space"){
+stopSpin();
+}
+
+});
+
+/* =====================
+RESET TAMPILAN SAAT GANTI BG
+===================== */
+
+function gantiBackground(file){
+
+let banner=document.getElementById("banner");
 let box=document.getElementById("namaMitra");
 
+/* ganti background */
+
+banner.style.backgroundImage="url('"+file+"')";
+
+/* reset teks */
+
+box.innerText="Tekan Untuk Mulai";
+
+/* hapus animasi */
+
+box.classList.remove("pop");
+
+/* tutup modal */
+
+document.getElementById("winnerModal").style.display="none";
+
+/* reset spin */
+
+sedangKocok=false;
+
+}
+
+/* =====================
+MULAI SPIN
+===================== */
+
+function mulaiSpin(mode){
+
+if(sedangKocok) return;
+
+modeSpin=mode;
+sedangKocok=true;
+
 let drum=document.getElementById("drum");
-let win=document.getElementById("win");
 
 drum.currentTime=0;
-drum.play();
+drum.play().catch(()=>{});
 
-let durasi=5000;
-let interval=70;
-let waktu=0;
+spinInterval=setInterval(()=>{
 
-let animasi=setInterval(()=>{
+let box=document.getElementById("namaMitra");
 
 let random=Math.floor(Math.random()*peserta.length);
 
 box.innerText=peserta[random];
 
-waktu+=interval;
+},30);
 
-if(waktu>=durasi){
+}
 
-clearInterval(animasi);
+/* =====================
+STOP SPIN
+===================== */
+
+function stopSpin(){
+
+if(!sedangKocok) return;
+
+clearInterval(spinInterval);
+
+let waktu=0;
+
+let slow=setInterval(()=>{
+
+let box=document.getElementById("namaMitra");
+
+let random=Math.floor(Math.random()*peserta.length);
+
+box.innerText=peserta[random];
+
+waktu+=120;
+
+if(waktu>=2000){
+
+clearInterval(slow);
+
+tampilkanPemenang();
+
+}
+
+},120);
+
+}
+
+/* =====================
+PEMENANG
+===================== */
+
+function tampilkanPemenang(){
+
+let box=document.getElementById("namaMitra");
+let drum=document.getElementById("drum");
+let win=document.getElementById("win");
 
 let nama;
 
-/* jika juara sudah disetting */
+/* JUARA */
 
-if(pemenangTetap[juara]){
+if(pemenangTetap[modeSpin]){
 
-nama=pemenangTetap[juara];
+nama=pemenangTetap[modeSpin];
 
-}else{
-
-/* random */
-
-let random=Math.floor(Math.random()*peserta.length);
-nama=peserta[random];
+if(!peserta.includes(nama)){
+nama=peserta[Math.floor(Math.random()*peserta.length)];
+}
 
 }
 
-/* tampilkan */
+/* HADIAH RECEH */
+
+else{
+
+let kandidat=peserta.filter(p =>
+!Object.values(pemenangTetap).includes(p)
+);
+
+if(kandidat.length===0){
+
+alert("Peserta habis");
+sedangKocok=false;
+return;
+
+}
+
+nama=kandidat[Math.floor(Math.random()*kandidat.length)];
+
+}
+
+currentWinner=nama;
 
 box.innerText=nama;
-
 box.classList.add("pop");
 
 drum.pause();
-win.play();
+
+win.currentTime=0;
+win.play().catch(()=>{});
+
+/* confetti */
 
 confetti({
-particleCount:250,
-spread:160,
+particleCount:300,
+spread:180,
 origin:{y:0.6}
 });
 
-/* hapus dari peserta */
-
-let indexPeserta = peserta.indexOf(nama);
-if(indexPeserta !== -1){
-peserta.splice(indexPeserta,1);
-}
+/* modal delay */
 
 setTimeout(()=>{
+
+document.getElementById("winnerName").innerText=nama;
+
+document.getElementById("winnerModal").style.display="flex";
+
+},3000);
+
+setTimeout(()=>{
+
 box.classList.remove("pop");
 sedangKocok=false;
+
 },2000);
 
 }
 
-},interval);
+/* =====================
+HAPUS PEMENANG
+===================== */
+
+function hapusPemenang(){
+
+peserta=peserta.filter(p => p!==currentWinner);
+
+localStorage.setItem("peserta",JSON.stringify(peserta));
+
+document.getElementById("winnerModal").style.display="none";
 
 }
 
