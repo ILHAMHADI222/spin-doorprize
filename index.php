@@ -322,8 +322,6 @@ document.getElementById("winnerModal").style.display="none"
 namaElement.innerText="Tekan Untuk Memulai"
 
 }
-
 </script>
-
 </body>
 </html>
